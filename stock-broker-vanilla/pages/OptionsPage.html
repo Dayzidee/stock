@@ -41,6 +41,11 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
+        .sentiment-btn.active {
+            background-color: #00D4AA;
+            color: white;
+        }
     </style>
 </head>
 
@@ -56,6 +61,13 @@
                 <h1 id="stock-symbol" class="text-lg font-semibold text-gray-900">SYMBOL</h1>
                 <p class="text-xs text-gray-500">Select Options</p>
             </div>
+
+            <!-- View Toggle -->
+            <div class="flex bg-gray-100 rounded-lg p-0.5 mr-4">
+                <button onclick="setViewMode('discover')" id="toggle-discover" class="px-3 py-1 text-[10px] font-bold rounded-md transition-all bg-white shadow-sm text-gray-900 uppercase">Discover</button>
+                <button onclick="setViewMode('table')" id="toggle-table" class="px-3 py-1 text-[10px] font-bold rounded-md transition-all text-gray-500 uppercase">Table</button>
+            </div>
+
             <button class="text-primary text-sm font-medium">Select</button>
         </div>
     </div>
@@ -68,25 +80,134 @@
             </div>
         </div>
 
-        <!-- Tab Selector Component -->
-        <div class="bg-white p-4 border-b border-gray-100 sticky top-[56px] z-30">
-            <div class="flex bg-gray-100 rounded-lg p-1">
-                <button onclick="handleTabChange('buy')" id="tab-buy"
-                    class="tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all bg-white text-gray-900 shadow-sm">Buy</button>
-                <button onclick="handleTabChange('sell')" id="tab-sell"
-                    class="tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all text-gray-600">Sell</button>
-                <button onclick="handleTabChange('call')" id="tab-call"
-                    class="tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all bg-white text-gray-900 shadow-sm">Call</button>
-                <button onclick="handleTabChange('put')" id="tab-put"
-                    class="tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all text-gray-600">Put</button>
+        <!-- Discover View -->
+        <div id="discover-view" class="hidden">
+            <div class="p-6 bg-white">
+                <h2 id="sentiment-title" class="text-2xl font-bold text-gray-900 mb-6">I think it's going up.</h2>
+
+                <!-- Sentiment Buttons -->
+                <div class="flex justify-between items-center mb-8 px-2">
+                    <button onclick="setSentiment('up')" class="sentiment-btn group flex flex-col items-center space-y-2">
+                        <div id="sent-up" class="w-12 h-12 rounded-full border-2 border-gray-100 flex items-center justify-center text-gray-400 transition-all group-hover:border-primary">
+                            <i data-lucide="trending-up" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Up</span>
+                    </button>
+                    <button onclick="setSentiment('down')" class="sentiment-btn group flex flex-col items-center space-y-2">
+                        <div id="sent-down" class="w-12 h-12 rounded-full border-2 border-gray-100 flex items-center justify-center text-gray-400 transition-all group-hover:border-primary">
+                            <i data-lucide="trending-down" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Down</span>
+                    </button>
+                    <button onclick="setSentiment('volatility')" class="sentiment-btn group flex flex-col items-center space-y-2">
+                        <div id="sent-volatility" class="w-12 h-12 rounded-full border-2 border-gray-100 flex items-center justify-center text-gray-400 transition-all group-hover:border-primary">
+                            <i data-lucide="activity" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Volatility</span>
+                    </button>
+                    <button onclick="setSentiment('sideways')" class="sentiment-btn group flex flex-col items-center space-y-2">
+                        <div id="sent-sideways" class="w-12 h-12 rounded-full border-2 border-gray-100 flex items-center justify-center text-gray-400 transition-all group-hover:border-primary">
+                            <i data-lucide="move-horizontal" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sideways</span>
+                    </button>
+                    <button onclick="setSentiment('earnings')" class="sentiment-btn group flex flex-col items-center space-y-2">
+                        <div id="sent-earnings" class="w-12 h-12 rounded-full border-2 border-gray-100 flex items-center justify-center text-gray-400 transition-all group-hover:border-primary">
+                            <i data-lucide="calendar" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Earnings</span>
+                    </button>
+                </div>
+
+                <!-- Strategy Cards -->
+                <div id="strategy-cards" class="space-y-4">
+                    <!-- Cards will be injected here -->
+                </div>
             </div>
         </div>
 
-        <!-- Options List -->
-        <div id="options-list" class="bg-white">
-            <!-- Option cards will be injected here -->
+        <!-- Table View -->
+        <div id="table-view">
+            <!-- Tab Selector Component -->
+            <div class="bg-white p-4 border-b border-gray-100 sticky top-[56px] z-30">
+                <div class="flex bg-gray-100 rounded-lg p-1">
+                    <button onclick="handleTabChange('buy')" id="tab-buy"
+                        class="tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all bg-white text-gray-900 shadow-sm">Buy</button>
+                    <button onclick="handleTabChange('sell')" id="tab-sell"
+                        class="tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all text-gray-600">Sell</button>
+                    <button onclick="handleTabChange('call')" id="tab-call"
+                        class="tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all bg-white text-gray-900 shadow-sm">Call</button>
+                    <button onclick="handleTabChange('put')" id="tab-put"
+                        class="tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all text-gray-600">Put</button>
+                </div>
+            </div>
+
+            <!-- Options List -->
+            <div id="options-list" class="bg-white">
+                <!-- Option cards will be injected here -->
+            </div>
         </div>
     </main>
+
+    <!-- Greeks Modal -->
+    <div id="greeks-modal" class="fixed inset-0 z-50 invisible">
+        <div id="greeks-overlay" class="absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300"></div>
+        <div id="greeks-content" class="absolute inset-x-4 top-1/2 -translate-y-1/2 bg-white rounded-3xl p-6 transform scale-95 opacity-0 transition-all duration-300">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-900">Statistics</h3>
+                <button onclick="toggleGreeksModal()" class="text-gray-400">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div class="space-y-6">
+                <div class="grid grid-cols-2 gap-y-4 gap-x-8">
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Bid/Ask</p>
+                        <p id="modal-bid-ask" class="text-sm font-bold text-gray-900 mt-0.5">$0.00 x 0</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Mark</p>
+                        <p id="modal-mark" class="text-sm font-bold text-gray-900 mt-0.5">$0.00</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Open Interest</p>
+                        <p id="modal-oi" class="text-sm font-bold text-gray-900 mt-0.5">0</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Implied Vol.</p>
+                        <p id="modal-iv" class="text-sm font-bold text-gray-900 mt-0.5">0.00%</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Chance of Profit</p>
+                        <p id="modal-cop" class="text-sm font-bold text-gray-900 mt-0.5">0.00%</p>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-gray-100">
+                    <h4 class="text-sm font-bold text-gray-900 mb-4 uppercase tracking-widest text-center">The Greeks</h4>
+                    <div class="grid grid-cols-4 gap-2">
+                        <div class="text-center">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Delta</p>
+                            <p id="greek-delta" class="text-xs font-bold text-gray-900 mt-0.5">0.000</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Gamma</p>
+                            <p id="greek-gamma" class="text-xs font-bold text-gray-900 mt-0.5">0.000</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Theta</p>
+                            <p id="greek-theta" class="text-xs font-bold text-gray-900 mt-0.5">0.000</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Vega</p>
+                            <p id="greek-vega" class="text-xs font-bold text-gray-900 mt-0.5">0.000</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Shared Mock Data and Utilities
@@ -119,10 +240,13 @@
                 },
                 SPY: {
                     calls: [
-                        { strike: 330, type: 'call', price: 3.40, bid: 3.93, ask: 3.95, breakEven: 333.40, change: 0.40, changePercent: 1.98, breakEvenPercent: 1.73 },
-                        { strike: 329, type: 'call', price: 3.98, bid: 3.96, ask: 4.00, breakEven: 332.98, change: 0.98, changePercent: 1.97, breakEvenPercent: 1.60 }
+                        { strike: 330, type: 'call', price: 3.40, bid: 3.38, ask: 3.42, breakEven: 333.40, change: 0.40, changePercent: 1.98, breakEvenPercent: 1.73 },
+                        { strike: 329, type: 'call', price: 3.98, bid: 3.96, ask: 4.00, breakEven: 332.98, change: 0.98, changePercent: 1.97, breakEvenPercent: 1.60 },
+                        { strike: 325, type: 'call', price: 6.24, bid: 6.22, ask: 6.26, breakEven: 331.24, change: 1.24, changePercent: 1.5, breakEvenPercent: 1.1 }
                     ],
-                    puts: []
+                    puts: [
+                        { strike: 320, type: 'put', price: 2.15, bid: 2.13, ask: 2.17, breakEven: 317.85, change: -0.15, changePercent: -2.25, breakEvenPercent: -3.01 },
+                    ]
                 }
             }
         };
@@ -135,11 +259,22 @@
         };
 
         const urlParams = new URLSearchParams(window.location.search);
-        const symbol = urlParams.get('symbol') || 'AMD';
+        const symbol = urlParams.get('symbol') || 'SPY';
+        const initialStrategy = urlParams.get('strategy') || 'buy';
 
-        let activeStrategy = 'buy'; // buy or sell
+        let activeStrategy = initialStrategy; // buy or sell
         let activeType = 'call'; // call or put
         let selectedDate = '2026-01-31';
+        let viewMode = 'discover'; // discover or table
+        let currentSentiment = 'up';
+
+        const sentiments = {
+            up: { title: "I think it's going up.", icon: 'trending-up', strategy: 'Long Call' },
+            down: { title: "I think it's going down.", icon: 'trending-down', strategy: 'Long Put' },
+            volatility: { title: "I expect high volatility.", icon: 'activity', strategy: 'Long Straddle' },
+            sideways: { title: "I expect it to stay flat.", icon: 'move-horizontal', strategy: 'Iron Condor' },
+            earnings: { title: "I want to play earnings.", icon: 'calendar', strategy: 'Calendar Spread' }
+        };
 
         const dates = ['2026-01-17', '2026-01-24', '2026-01-31', '2026-02-07', '2026-02-14', '2026-02-21'];
 
@@ -152,6 +287,26 @@
             updateTabs();
             renderOptions();
         };
+
+        function setViewMode(mode) {
+            viewMode = mode;
+            document.getElementById('discover-view').classList.toggle('hidden', mode !== 'discover');
+            document.getElementById('table-view').classList.toggle('hidden', mode !== 'table');
+
+            const discBtn = document.getElementById('toggle-discover');
+            const tableBtn = document.getElementById('toggle-table');
+
+            discBtn.className = `px-3 py-1 text-[10px] font-bold rounded-md transition-all uppercase ${mode === 'discover' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500'}`;
+            tableBtn.className = `px-3 py-1 text-[10px] font-bold rounded-md transition-all uppercase ${mode === 'table' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500'}`;
+
+            if (mode === 'discover') renderDiscover();
+            else renderOptions();
+        }
+
+        function setSentiment(sent) {
+            currentSentiment = sent;
+            renderDiscover();
+        }
 
         function initPage() {
             document.getElementById('stock-symbol').textContent = symbol;
@@ -177,8 +332,8 @@
                 dateSelector.appendChild(btn);
             });
 
+            setViewMode(viewMode);
             updateTabs();
-            renderOptions();
             lucide.createIcons();
         }
 
@@ -186,14 +341,63 @@
             // Update strategy tabs
             const buyBtn = document.getElementById('tab-buy');
             const sellBtn = document.getElementById('tab-sell');
-            buyBtn.className = `flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all ${activeStrategy === 'buy' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`;
-            sellBtn.className = `flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all ${activeStrategy === 'sell' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`;
+            buyBtn.className = `tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all ${activeStrategy === 'buy' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`;
+            sellBtn.className = `tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all ${activeStrategy === 'sell' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`;
 
             // Update type tabs
             const callBtn = document.getElementById('tab-call');
             const putBtn = document.getElementById('tab-put');
-            callBtn.className = `flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all ${activeType === 'call' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`;
-            putBtn.className = `flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all ${activeType === 'put' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`;
+            callBtn.className = `tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all ${activeType === 'call' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`;
+            putBtn.className = `tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all ${activeType === 'put' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`;
+        }
+
+        function renderDiscover() {
+            const titleEl = document.getElementById('sentiment-title');
+            const sentiment = sentiments[currentSentiment];
+            titleEl.textContent = sentiment.title;
+
+            // Update sentiment icons
+            Object.keys(sentiments).forEach(key => {
+                const el = document.getElementById(`sent-${key}`);
+                if (key === currentSentiment) {
+                    el.classList.add('bg-primary', 'border-primary', 'text-white');
+                    el.classList.remove('border-gray-100', 'text-gray-400');
+                } else {
+                    el.classList.remove('bg-primary', 'border-primary', 'text-white');
+                    el.classList.add('border-gray-100', 'text-gray-400');
+                }
+            });
+
+            const cardsContainer = document.getElementById('strategy-cards');
+            cardsContainer.innerHTML = '';
+
+            // Generate some mock strategies based on sentiment
+            const strategies = [
+                { risk: 'High Risk', term: 'Short Term', action: 'Buy $330 Call', price: 3.40 },
+                { risk: 'Medium Risk', term: 'Medium Term', action: 'Buy $325 Call', price: 6.24 },
+            ];
+
+            strategies.forEach(strat => {
+                const div = document.createElement('div');
+                div.className = 'border border-gray-100 rounded-2xl p-4 flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer';
+                div.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <button onclick="event.stopPropagation(); toggleGreeksModal();" class="text-gray-300">
+                            <i data-lucide="info" class="w-5 h-5"></i>
+                        </button>
+                        <div>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${strat.risk} / ${strat.term}</p>
+                            <p class="text-sm font-bold text-gray-900 mt-0.5">Recommendation: ${strat.action}</p>
+                        </div>
+                    </div>
+                    <div class="bg-primary px-3 py-1 rounded-full">
+                        <span class="text-sm font-bold text-white">${formatters.currency(strat.price)}</span>
+                    </div>
+                `;
+                div.onclick = () => window.location.href = `OrderPage.html?symbol=${symbol}&strategy=${currentSentiment}`;
+                cardsContainer.appendChild(div);
+            });
+            lucide.createIcons();
         }
 
         function renderOptions() {
@@ -208,22 +412,26 @@
             list.forEach(opt => {
                 const div = document.createElement('div');
                 div.className = 'bg-white p-4 cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-100';
-                div.onclick = () => window.location.href = `OrderPage.html?symbol=${symbol}&type=${opt.type}&strike=${opt.strike}`;
 
                 div.innerHTML = `
                     <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-gray-900">
-                                ${formatters.currency(opt.strike, 0)} ${opt.type === 'call' ? 'Call' : 'Put'}
-                            </h3>
-                            <div class="flex items-center space-x-3 mt-1 text-xs text-gray-500">
-                                <div>
-                                    <span class="font-medium uppercase">Break Even</span>
-                                    <p class="text-gray-900">${formatters.currency(opt.breakEven)}</p>
-                                </div>
-                                <div>
-                                    <span class="font-medium uppercase">To Break Even %</span>
-                                    <p class="text-gray-900">${formatters.percent(opt.breakEvenPercent)}</p>
+                        <div class="flex items-center flex-1">
+                            <button onclick="event.stopPropagation(); toggleGreeksModal();" class="mr-4 text-gray-300">
+                                <i data-lucide="info" class="w-5 h-5"></i>
+                            </button>
+                            <div>
+                                <h3 class="font-semibold text-gray-900">
+                                    ${formatters.currency(opt.strike, 0)} ${opt.type === 'call' ? 'Call' : 'Put'}
+                                </h3>
+                                <div class="flex items-center space-x-3 mt-1 text-xs text-gray-500">
+                                    <div>
+                                        <span class="font-medium uppercase">Break Even</span>
+                                        <p class="text-gray-900">${formatters.currency(opt.breakEven)}</p>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium uppercase">To Break Even %</span>
+                                        <p class="text-gray-900">${formatters.percent(opt.breakEvenPercent)}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -238,8 +446,43 @@
                         </div>
                     </div>
                 `;
+                div.onclick = (e) => {
+                    if (e.target.closest('button')) return;
+                    window.location.href = `OrderPage.html?symbol=${symbol}&type=${opt.type}&strike=${opt.strike}`;
+                };
                 optionsList.appendChild(div);
             });
+            lucide.createIcons();
+        }
+
+        function toggleGreeksModal() {
+            const modal = document.getElementById('greeks-modal');
+            const overlay = document.getElementById('greeks-overlay');
+            const content = document.getElementById('greeks-content');
+            const isVisible = !modal.classList.contains('invisible');
+
+            if (isVisible) {
+                overlay.classList.replace('opacity-100', 'opacity-0');
+                content.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => modal.classList.add('invisible'), 300);
+            } else {
+                modal.classList.remove('invisible');
+                // Pre-fill with some dummy data for now
+                document.getElementById('modal-bid-ask').textContent = '$3.38 x 120';
+                document.getElementById('modal-mark').textContent = '$3.40';
+                document.getElementById('modal-oi').textContent = '12,408';
+                document.getElementById('modal-iv').textContent = '32.4%';
+                document.getElementById('modal-cop').textContent = '68.2%';
+                document.getElementById('greek-delta').textContent = '0.524';
+                document.getElementById('greek-gamma').textContent = '0.042';
+                document.getElementById('greek-theta').textContent = '-0.124';
+                document.getElementById('greek-vega').textContent = '0.081';
+
+                setTimeout(() => {
+                    overlay.classList.replace('opacity-0', 'opacity-100');
+                    content.classList.remove('scale-95', 'opacity-0');
+                }, 10);
+            }
         }
 
         initPage();
