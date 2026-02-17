@@ -1,0 +1,316 @@
+// Generate chart data
+const generateChartData = (days, baseValue, volatility = 0.02) => {
+    const data = [];
+    let value = baseValue;
+    const now = new Date();
+
+    for (let i = days; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+
+        value = value * (1 + (Math.random() - 0.5) * volatility);
+
+        data.push({
+            time: date.toISOString(),
+            value: parseFloat(value.toFixed(2)),
+        });
+    }
+
+    return data;
+};
+
+// Mock Stocks
+export const mockStocks = [
+    {
+        symbol: 'SPY',
+        name: 'SPDR S&P 500 ETF',
+        price: 327.73,
+        change: 1.49,
+        changePercent: 0.45,
+        shares: 100,
+        chartData: generateChartData(30, 325),
+    },
+    {
+        symbol: 'AAPL',
+        name: 'Apple Inc.',
+        price: 312.68,
+        change: -4.32,
+        changePercent: -1.4,
+        shares: 10,
+        chartData: generateChartData(30, 315),
+    },
+    {
+        symbol: 'AMD',
+        name: 'Advanced Micro Devices',
+        price: 48.62,
+        change: -0.53,
+        changePercent: -1.1,
+        shares: 50,
+        chartData: generateChartData(30, 49),
+    },
+    {
+        symbol: 'ATVI',
+        name: 'Activision Blizzard',
+        price: 82.80,
+        change: -17.86,
+        changePercent: -17.7,
+        shares: 5,
+        chartData: generateChartData(30, 95),
+    },
+    {
+        symbol: 'PYPL',
+        name: 'PayPal Holdings',
+        price: 51.24,
+        change: 12.18,
+        changePercent: 31.2,
+        shares: 3,
+        chartData: generateChartData(30, 45),
+    },
+    {
+        symbol: 'V',
+        name: 'Visa Inc.',
+        price: 245.67,
+        change: 10.00,
+        changePercent: 4.2,
+        shares: 1,
+        chartData: generateChartData(30, 240),
+    },
+    {
+        symbol: 'IMGN',
+        name: 'ImmunoGen Inc.',
+        price: 34.88,
+        change: 4.86,
+        changePercent: 16.2,
+        shares: 1,
+        chartData: generateChartData(30, 32),
+    },
+    {
+        symbol: 'WPG',
+        name: 'Washington Prime Group',
+        price: 12.45,
+        change: 3.70,
+        changePercent: 42.3,
+        shares: 1,
+        chartData: generateChartData(30, 10),
+    },
+    {
+        symbol: 'PLUG',
+        name: 'Plug Power Inc.',
+        price: 8.92,
+        change: 5.05,
+        changePercent: 130.5,
+        shares: 5,
+        chartData: generateChartData(30, 6),
+    },
+];
+
+// Mock Options for AMD
+export const mockAMDOptions = [
+    {
+        symbol: 'AMD',
+        strike: 49.5,
+        type: 'call',
+        expiration: '2026-01-31',
+        price: 2.01,
+        bid: 1.99,
+        ask: 2.03,
+        breakEven: 51.51,
+        breakEvenPercent: 5.66,
+        change: 0.00,
+        changePercent: 0.00,
+        volume: 1455,
+        openInterest: 4114,
+        impliedVolatility: 59.05,
+        greeks: { delta: 0.5051, gamma: 0.0663, theta: -0.0765, vega: 0.0406, rho: 0.0098 },
+    },
+    {
+        symbol: 'AMD',
+        strike: 49,
+        type: 'call',
+        expiration: '2026-01-31',
+        price: 2.24,
+        bid: 2.22,
+        ask: 2.26,
+        breakEven: 51.24,
+        breakEvenPercent: 5.11,
+        change: 0.24,
+        changePercent: 4.94,
+        volume: 2340,
+        openInterest: 5621,
+        impliedVolatility: 56.82,
+        greeks: { delta: 0.5421, gamma: 0.0698, theta: -0.0812, vega: 0.0425, rho: 0.0102 },
+    },
+    {
+        symbol: 'AMD',
+        strike: 48.5,
+        type: 'call',
+        expiration: '2026-01-31',
+        price: 2.47,
+        bid: 2.45,
+        ask: 2.49,
+        breakEven: 50.97,
+        breakEvenPercent: 4.55,
+        change: 0.47,
+        changePercent: 6.01,
+        volume: 1876,
+        openInterest: 3982,
+        impliedVolatility: 54.23,
+        greeks: { delta: 0.5789, gamma: 0.0721, theta: -0.0856, vega: 0.0441, rho: 0.0106 },
+    },
+    {
+        symbol: 'AMD',
+        strike: 48,
+        type: 'call',
+        expiration: '2026-01-31',
+        price: 2.74,
+        bid: 2.72,
+        ask: 2.76,
+        breakEven: 50.74,
+        breakEvenPercent: 4.08,
+        change: 0.74,
+        changePercent: 7.45,
+        volume: 3210,
+        openInterest: 7854,
+        impliedVolatility: 51.67,
+        greeks: { delta: 0.6142, gamma: 0.0738, theta: -0.0895, vega: 0.0455, rho: 0.0109 },
+    },
+];
+
+// Mock Options for SPY
+export const mockSPYOptions = [
+    {
+        symbol: 'SPY',
+        strike: 330,
+        type: 'call',
+        expiration: '2026-02-21',
+        price: 3.40,
+        bid: 3.93,
+        ask: 3.95,
+        breakEven: 333.40,
+        breakEvenPercent: 1.73,
+        change: 0.40,
+        changePercent: 1.98,
+        volume: 4408,
+        openInterest: 11564,
+        impliedVolatility: 10.05,
+        greeks: { delta: 0.4875, gamma: 0.0380, theta: -0.0671, vega: 0.4160, rho: 0.0875 },
+    },
+    {
+        symbol: 'SPY',
+        strike: 329,
+        type: 'call',
+        expiration: '2026-02-21',
+        price: 3.98,
+        bid: 3.96,
+        ask: 4.00,
+        breakEven: 332.98,
+        breakEvenPercent: 1.60,
+        change: 0.98,
+        changePercent: 1.97,
+        volume: 5621,
+        openInterest: 15234,
+        impliedVolatility: 9.87,
+        greeks: { delta: 0.5234, gamma: 0.0395, theta: -0.0698, vega: 0.4285, rho: 0.0912 },
+    },
+    {
+        symbol: 'SPY',
+        strike: 328,
+        type: 'call',
+        expiration: '2026-02-21',
+        price: 4.59,
+        bid: 4.57,
+        ask: 4.61,
+        breakEven: 332.59,
+        breakEvenPercent: 1.48,
+        change: 1.59,
+        changePercent: 1.64,
+        volume: 6789,
+        openInterest: 18976,
+        impliedVolatility: 9.65,
+        greeks: { delta: 0.5598, gamma: 0.0408, theta: -0.0723, vega: 0.4398, rho: 0.0945 },
+    },
+    {
+        symbol: 'SPY',
+        strike: 327,
+        type: 'call',
+        expiration: '2026-02-21',
+        price: 5.24,
+        bid: 5.22,
+        ask: 5.26,
+        breakEven: 332.24,
+        breakEvenPercent: 1.39,
+        change: 2.24,
+        changePercent: 1.89,
+        volume: 8234,
+        openInterest: 21456,
+        impliedVolatility: 9.42,
+        greeks: { delta: 0.5951, gamma: 0.0419, theta: -0.0746, vega: 0.4502, rho: 0.0976 },
+    },
+];
+
+// Mock Portfolio
+export const mockPortfolio = {
+    totalValue: 1444.57,
+    cash: 18.09,
+    buyingPower: 408.07,
+    todayChange: -9.2161,
+    todayChangePercent: -0.81,
+    totalReturn: 144.57,
+    totalReturnPercent: 11.1,
+    positions: [],
+    chartData: generateChartData(90, 1300, 0.015),
+};
+
+// Generate positions from stocks
+export const mockPositions = mockStocks.map((stock, index) => ({
+    id: `pos-${index}`,
+    symbol: stock.symbol,
+    type: 'stock',
+    quantity: stock.shares || 1,
+    avgCost: stock.price / (1 + stock.changePercent / 100),
+    currentPrice: stock.price,
+    totalValue: stock.price * (stock.shares || 1),
+    totalReturn: stock.change * (stock.shares || 1),
+    totalReturnPercent: stock.changePercent,
+    todayReturn: stock.change * (stock.shares || 1),
+    todayReturnPercent: stock.changePercent,
+    chartData: stock.chartData,
+}));
+
+// Add option position
+mockPositions.push({
+    id: 'pos-option-1',
+    symbol: 'SPY',
+    type: 'option',
+    quantity: 1,
+    avgCost: 390.00,
+    currentPrice: 389.00,
+    totalValue: 389.00,
+    totalReturn: -1.00,
+    totalReturnPercent: -0.26,
+    todayReturn: -0.10,
+    todayReturnPercent: -0.03,
+    chartData: generateChartData(7, 390, 0.01),
+});
+
+mockPortfolio.positions = mockPositions;
+
+// Crypto data
+export const mockCryptos = [
+    {
+        symbol: 'BTC',
+        name: 'Bitcoin',
+        price: 42156.78,
+        change: 1234.56,
+        changePercent: 3.02,
+        chartData: generateChartData(30, 40000, 0.03),
+    },
+    {
+        symbol: 'ETH',
+        name: 'Ethereum',
+        price: 2234.12,
+        change: -45.32,
+        changePercent: -1.99,
+        chartData: generateChartData(30, 2280, 0.025),
+    },
+];

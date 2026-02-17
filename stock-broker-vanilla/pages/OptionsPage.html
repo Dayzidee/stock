@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Options - Stock Broker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00D4AA',
+                        success: '#00D4AA',
+                        danger: '#FF5A5F',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top);
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 flex flex-col min-h-screen">
+
+    <!-- Header Component -->
+    <div class="sticky top-0 bg-white border-b border-gray-200 z-40 safe-area-top">
+        <div class="flex items-center px-4 h-14">
+            <button onclick="window.history.back()" class="mr-3">
+                <i data-lucide="chevron-left" class="w-6 h-6 text-gray-900"></i>
+            </button>
+            <div class="flex-1">
+                <h1 id="stock-symbol" class="text-lg font-semibold text-gray-900">SYMBOL</h1>
+                <p class="text-xs text-gray-500">Select Options</p>
+            </div>
+            <button class="text-primary text-sm font-medium">Select</button>
+        </div>
+    </div>
+
+    <main class="flex-1 pb-8">
+        <!-- Date Selector -->
+        <div class="bg-white border-b border-gray-100 overflow-x-auto no-scrollbar">
+            <div id="date-selector" class="flex p-4 space-x-4 min-w-max">
+                <!-- Dates will be injected here -->
+            </div>
+        </div>
+
+        <!-- Tab Selector Component -->
+        <div class="bg-white p-4 border-b border-gray-100 sticky top-[56px] z-30">
+            <div class="flex bg-gray-100 rounded-lg p-1">
+                <button onclick="handleTabChange('buy')" id="tab-buy"
+                    class="tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all bg-white text-gray-900 shadow-sm">Buy</button>
+                <button onclick="handleTabChange('sell')" id="tab-sell"
+                    class="tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all text-gray-600">Sell</button>
+                <button onclick="handleTabChange('call')" id="tab-call"
+                    class="tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all bg-white text-gray-900 shadow-sm">Call</button>
+                <button onclick="handleTabChange('put')" id="tab-put"
+                    class="tab-btn flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all text-gray-600">Put</button>
+            </div>
+        </div>
+
+        <!-- Options List -->
+        <div id="options-list" class="bg-white">
+            <!-- Option cards will be injected here -->
+        </div>
+    </main>
+
+    <script>
+        // Shared Mock Data and Utilities
+        const mockData = {
+            portfolio: {
+                totalValue: 1444.57,
+                cash: 18.09,
+                buyingPower: 408.07,
+                todayChange: -9.21,
+                todayChangePercent: -0.81,
+                initialValue: 1300.00
+            },
+            stocks: [
+                { symbol: 'SPY', name: 'SPDR S&P 500 ETF', price: 327.73, change: 1.49, changePercent: 0.45, shares: 100 },
+                { symbol: 'AAPL', name: 'Apple Inc.', price: 312.68, change: -4.32, changePercent: -1.4, shares: 10 },
+                { symbol: 'AMD', name: 'Advanced Micro Devices', price: 48.62, change: -0.53, changePercent: -1.1, shares: 50 },
+                { symbol: 'TSLA', name: 'Tesla, Inc.', price: 182.63, change: 12.45, changePercent: 7.31, shares: 5 }
+            ],
+            options: {
+                AMD: {
+                    calls: [
+                        { strike: 49.5, type: 'call', price: 2.01, bid: 1.99, ask: 2.03, breakEven: 51.51, change: 0.05, changePercent: 2.5, breakEvenPercent: 5.66 },
+                        { strike: 49, type: 'call', price: 2.24, bid: 2.22, ask: 2.26, breakEven: 51.24, change: 0.24, changePercent: 4.94, breakEvenPercent: 5.11 },
+                        { strike: 48.5, type: 'call', price: 2.47, bid: 2.45, ask: 2.49, breakEven: 50.97, change: 0.47, changePercent: 6.01, breakEvenPercent: 4.55 }
+                    ],
+                    puts: [
+                        { strike: 50, type: 'put', price: 4.15, bid: 4.13, ask: 4.17, breakEven: 45.85, change: -0.15, changePercent: -2.25, breakEvenPercent: -5.30 },
+                        { strike: 49, type: 'put', price: 3.58, bid: 3.56, ask: 3.60, breakEven: 45.42, change: -0.58, changePercent: -2.65, breakEvenPercent: -6.19 }
+                    ]
+                },
+                SPY: {
+                    calls: [
+                        { strike: 330, type: 'call', price: 3.40, bid: 3.93, ask: 3.95, breakEven: 333.40, change: 0.40, changePercent: 1.98, breakEvenPercent: 1.73 },
+                        { strike: 329, type: 'call', price: 3.98, bid: 3.96, ask: 4.00, breakEven: 332.98, change: 0.98, changePercent: 1.97, breakEvenPercent: 1.60 }
+                    ],
+                    puts: []
+                }
+            }
+        };
+
+        const formatters = {
+            currency: (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val),
+            percent: (val) => (val > 0 ? '+' : '') + val.toFixed(2) + '%',
+            color: (val) => (val > 0 ? 'text-green-500' : val < 0 ? 'text-red-500' : 'text-gray-600'),
+            bgColor: (val) => (val > 0 ? 'bg-green-500' : val < 0 ? 'bg-red-500' : 'bg-gray-400')
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const symbol = urlParams.get('symbol') || 'AMD';
+
+        let activeStrategy = 'buy'; // buy or sell
+        let activeType = 'call'; // call or put
+        let selectedDate = '2026-01-31';
+
+        const dates = ['2026-01-17', '2026-01-24', '2026-01-31', '2026-02-07', '2026-02-14', '2026-02-21'];
+
+        window.handleTabChange = (tab) => {
+            if (tab === 'buy' || tab === 'sell') {
+                activeStrategy = tab;
+            } else {
+                activeType = tab;
+            }
+            updateTabs();
+            renderOptions();
+        };
+
+        function initPage() {
+            document.getElementById('stock-symbol').textContent = symbol;
+
+            // Render Dates
+            const dateSelector = document.getElementById('date-selector');
+            dateSelector.innerHTML = '';
+            dates.forEach(date => {
+                const d = new Date(date);
+                const month = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+                const day = d.getDate();
+
+                const btn = document.createElement('button');
+                btn.className = `flex flex-col items-center px-4 py-2 rounded-lg transition-all ${date === selectedDate ? 'bg-danger text-white' : 'text-gray-500'}`;
+                btn.onclick = () => {
+                    selectedDate = date;
+                    initPage();
+                };
+                btn.innerHTML = `
+                    <span class="text-[10px] font-bold">${month}</span>
+                    <span class="text-lg font-bold">${day}</span>
+                `;
+                dateSelector.appendChild(btn);
+            });
+
+            updateTabs();
+            renderOptions();
+            lucide.createIcons();
+        }
+
+        function updateTabs() {
+            // Update strategy tabs
+            const buyBtn = document.getElementById('tab-buy');
+            const sellBtn = document.getElementById('tab-sell');
+            buyBtn.className = `flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all ${activeStrategy === 'buy' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`;
+            sellBtn.className = `flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all ${activeStrategy === 'sell' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`;
+
+            // Update type tabs
+            const callBtn = document.getElementById('tab-call');
+            const putBtn = document.getElementById('tab-put');
+            callBtn.className = `flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all ${activeType === 'call' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`;
+            putBtn.className = `flex-1 py-1.5 px-4 rounded-md text-sm font-medium transition-all ${activeType === 'put' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`;
+        }
+
+        function renderOptions() {
+            const optionsList = document.getElementById('options-list');
+            optionsList.innerHTML = '';
+
+            const stockOptions = mockData.options[symbol];
+            if (!stockOptions) return;
+
+            const list = activeType === 'call' ? stockOptions.calls : stockOptions.puts;
+
+            list.forEach(opt => {
+                const div = document.createElement('div');
+                div.className = 'bg-white p-4 cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-100';
+                div.onclick = () => window.location.href = `OrderPage.html?symbol=${symbol}&type=${opt.type}&strike=${opt.strike}`;
+
+                div.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900">
+                                ${formatters.currency(opt.strike, 0)} ${opt.type === 'call' ? 'Call' : 'Put'}
+                            </h3>
+                            <div class="flex items-center space-x-3 mt-1 text-xs text-gray-500">
+                                <div>
+                                    <span class="font-medium uppercase">Break Even</span>
+                                    <p class="text-gray-900">${formatters.currency(opt.breakEven)}</p>
+                                </div>
+                                <div>
+                                    <span class="font-medium uppercase">To Break Even %</span>
+                                    <p class="text-gray-900">${formatters.percent(opt.breakEvenPercent)}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-right ml-4">
+                            <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold text-white ${formatters.bgColor(opt.change)}">
+                                ${formatters.currency(opt.price)}
+                            </div>
+                            <p class="text-xs mt-1 font-medium ${formatters.color(opt.change)}">
+                                ${formatters.percent(opt.changePercent)} TODAY
+                            </p>
+                        </div>
+                    </div>
+                `;
+                optionsList.appendChild(div);
+            });
+        }
+
+        initPage();
+    </script>
+</body>
+
+</html>

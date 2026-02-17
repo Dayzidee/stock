@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Order - Stock Broker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00D4AA',
+                        success: '#00D4AA',
+                        danger: '#FF5A5F',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top);
+        }
+
+        .btn-primary {
+            @apply w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all disabled:bg-gray-200 disabled:cursor-not-allowed;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 flex flex-col min-h-screen">
+
+    <!-- Header Component -->
+    <div class="sticky top-0 bg-white border-b border-gray-200 z-40 safe-area-top">
+        <div class="flex items-center justify-between px-4 h-14">
+            <button onclick="window.history.back()">
+                <i data-lucide="chevron-left" class="w-6 h-6 text-gray-900"></i>
+            </button>
+            <h1 id="order-title" class="text-base font-semibold text-gray-900">Order</h1>
+            <button class="p-2">
+                <i data-lucide="settings" class="w-5 h-5 text-gray-600"></i>
+            </button>
+        </div>
+    </div>
+
+    <main id="order-entry" class="flex-1 flex flex-col">
+        <!-- Order Entry View -->
+        <div id="entry-view">
+            <div class="bg-white p-6">
+                <div class="mb-6">
+                    <label class="text-sm text-gray-500 font-medium">Contracts</label>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-xs text-gray-400">×100 shares</span>
+                        <span id="qty-display" class="text-4xl font-light text-gray-900">1</span>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="text-sm text-gray-500 font-medium">Limit Price</label>
+                    <div class="flex items-center justify-between mt-2">
+                        <span id="bid-ask" class="text-xs text-primary">Bid $3.88 · Ask $3.92</span>
+                        <span id="price-display" class="text-2xl font-semibold text-gray-900">$3.90</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label id="cost-label" class="text-sm text-gray-500 font-medium">Max Cost</label>
+                    <div class="text-right mt-2">
+                        <span id="cost-display" class="text-2xl font-semibold text-gray-900">$390.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Numeric Keypad Component -->
+            <div class="grid grid-cols-3 gap-3 p-4 bg-white mt-auto">
+                <button onclick="handleKey('1')"
+                    class="h-14 text-2xl font-light text-primary hover:bg-gray-50 rounded-lg active:bg-gray-100">1</button>
+                <button onclick="handleKey('2')"
+                    class="h-14 text-2xl font-light text-primary hover:bg-gray-50 rounded-lg active:bg-gray-100">2</button>
+                <button onclick="handleKey('3')"
+                    class="h-14 text-2xl font-light text-primary hover:bg-gray-50 rounded-lg active:bg-gray-100">3</button>
+                <button onclick="handleKey('4')"
+                    class="h-14 text-2xl font-light text-primary hover:bg-gray-50 rounded-lg active:bg-gray-100">4</button>
+                <button onclick="handleKey('5')"
+                    class="h-14 text-2xl font-light text-primary hover:bg-gray-50 rounded-lg active:bg-gray-100">5</button>
+                <button onclick="handleKey('6')"
+                    class="h-14 text-2xl font-light text-primary hover:bg-gray-50 rounded-lg active:bg-gray-100">6</button>
+                <button onclick="handleKey('7')"
+                    class="h-14 text-2xl font-light text-primary hover:bg-gray-50 rounded-lg active:bg-gray-100">7</button>
+                <button onclick="handleKey('8')"
+                    class="h-14 text-2xl font-light text-primary hover:bg-gray-50 rounded-lg active:bg-gray-100">8</button>
+                <button onclick="handleKey('9')"
+                    class="h-14 text-2xl font-light text-primary hover:bg-gray-50 rounded-lg active:bg-gray-100">9</button>
+                <button onclick="handleKey('.')"
+                    class="h-14 text-2xl font-light text-primary hover:bg-gray-50 rounded-lg active:bg-gray-100">.</button>
+                <button onclick="handleKey('0')"
+                    class="h-14 text-2xl font-light text-primary hover:bg-gray-50 rounded-lg active:bg-gray-100">0</button>
+                <button onclick="handleKey('backspace')"
+                    class="h-14 text-2xl font-light text-primary hover:bg-gray-50 rounded-lg active:bg-gray-100">⌫</button>
+            </div>
+
+            <div class="p-4 bg-white">
+                <button id="review-btn" onclick="showReviewScreen()"
+                    class="w-full bg-green-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors">
+                    Review
+                </button>
+            </div>
+        </div>
+
+        <!-- Review View (Hidden by default) -->
+        <div id="review-view" class="hidden flex-1 p-6">
+            <div class="bg-white rounded-lg p-6 shadow-sm">
+                <h2 class="text-xl font-bold mb-4">Review Order</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Action</span>
+                        <span id="rev-action" class="font-semibold uppercase">Buy</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Symbol</span>
+                        <span id="rev-symbol" class="font-semibold">AMD</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Contracts</span>
+                        <span id="rev-qty" class="font-semibold">1</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Limit Price</span>
+                        <span id="rev-price" class="font-semibold">$3.90</span>
+                    </div>
+                    <div class="border-t pt-4 flex justify-between">
+                        <span class="text-gray-600 font-bold">Total Cost</span>
+                        <span id="rev-cost" class="text-xl font-bold">$390.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <button onclick="submitOrder()"
+                    class="w-full bg-primary text-white py-4 rounded-xl font-bold text-lg shadow-lg active:scale-95 transition-all">
+                    Tap to Submit
+                </button>
+                <button onclick="hideReviewScreen()" class="w-full mt-4 text-gray-500 font-medium py-2">
+                    Edit Order
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Modal Component -->
+    <div id="success-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div
+            class="bg-white w-[90%] max-w-sm rounded-2xl p-8 flex flex-col items-center text-center animate-in fade-in zoom-in duration-300">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                <i data-lucide="check-circle" class="w-12 h-12 text-primary"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Order Placed</h2>
+            <p id="success-msg" class="text-gray-500 mb-8">Your order for 1 contract has been sent.</p>
+            <button onclick="closeModal()" class="w-full bg-primary text-white py-4 rounded-xl font-bold">
+                Done
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Shared Mock Data and Utilities
+        const formatters = {
+            currency: (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val),
+            percent: (val) => (val > 0 ? '+' : '') + val.toFixed(2) + '%',
+        };
+
+        const calculations = {
+            maxCost: (price, qty) => price * qty * 100
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const symbol = urlParams.get('symbol') || 'AMD';
+        const type = urlParams.get('type') || 'call';
+        const strike = urlParams.get('strike') || '49';
+        const isBuy = true;
+
+        let quantity = '1';
+        const limitPrice = 3.90;
+
+        window.handleKey = (key) => {
+            if (key === 'backspace') {
+                quantity = quantity.slice(0, -1);
+            } else if (key === '.') {
+                if (!quantity.includes('.')) quantity += '.';
+            } else {
+                if (quantity === '0') quantity = key;
+                else quantity += key;
+            }
+            if (quantity === '') quantity = '0';
+            updateUI();
+        };
+
+        window.showReviewScreen = () => {
+            document.getElementById('entry-view').classList.add('hidden');
+            document.getElementById('review-view').classList.remove('hidden');
+
+            document.getElementById('rev-action').textContent = isBuy ? 'Buy' : 'Sell';
+            document.getElementById('rev-symbol').textContent = symbol;
+            document.getElementById('rev-qty').textContent = quantity;
+            document.getElementById('rev-price').textContent = formatters.currency(limitPrice);
+            document.getElementById('rev-cost').textContent = formatters.currency(calculations.maxCost(limitPrice, parseFloat(quantity) || 0));
+        };
+
+        window.hideReviewScreen = () => {
+            document.getElementById('review-view').classList.add('hidden');
+            document.getElementById('entry-view').classList.remove('hidden');
+        };
+
+        window.submitOrder = () => {
+            document.getElementById('success-msg').textContent = `Your order for ${quantity} contract${quantity === '1' ? '' : 's'} has been sent.`;
+            document.getElementById('success-modal').classList.remove('hidden');
+        };
+
+        window.closeModal = () => {
+            window.location.href = 'HomePage.html';
+        };
+
+        function updateUI() {
+            document.getElementById('qty-display').textContent = quantity;
+            const cost = calculations.maxCost(limitPrice, parseFloat(quantity) || 0);
+            document.getElementById('cost-display').textContent = formatters.currency(cost);
+            document.getElementById('review-btn').disabled = (parseFloat(quantity) || 0) <= 0;
+        }
+
+        function initPage() {
+            document.getElementById('order-title').textContent = `${isBuy ? 'Buy' : 'Sell'} ${symbol} $${strike} ${type === 'call' ? 'Call' : 'Put'} 2/21`;
+            const bidAsk = document.getElementById('bid-ask');
+            if (bidAsk) bidAsk.textContent = `Bid $${(limitPrice - 0.02).toFixed(2)} · Ask $${(limitPrice + 0.02).toFixed(2)}`;
+            document.getElementById('price-display').textContent = formatters.currency(limitPrice);
+            document.getElementById('cost-label').textContent = isBuy ? 'Max Cost' : 'Min Credit';
+            updateUI();
+            lucide.createIcons();
+        }
+
+        initPage();
+    </script>
+</body>
+
+</html>

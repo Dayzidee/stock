@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Portfolio - Stock Broker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00D4AA',
+                        success: '#00D4AA',
+                        danger: '#FF5A5F',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top);
+        }
+
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 flex flex-col min-h-screen pb-20">
+
+    <!-- Header Component -->
+    <header class="sticky top-0 bg-white border-b border-gray-200 z-40 safe-area-top">
+        <div class="flex items-center justify-between px-4 h-14">
+            <h1 class="text-lg font-semibold text-gray-900">Portfolio</h1>
+            <button class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <i data-lucide="settings" class="w-5 h-5 text-gray-600"></i>
+            </button>
+        </div>
+    </header>
+
+    <main id="main-content" class="flex-1">
+        <!-- PortfolioHeader Component -->
+        <div class="bg-white px-4 pt-6 pb-4">
+            <div class="mb-4">
+                <h2 id="total-value" class="text-3xl font-bold text-gray-900">$0.00</h2>
+                <div class="flex items-center mt-1 space-x-2">
+                    <span id="today-change" class="text-sm font-medium">+$0.00</span>
+                    <span id="today-change-percent" class="text-sm">(+0.00%)</span>
+                </div>
+            </div>
+
+            <div class="h-32 -mx-4">
+                <canvas id="portfolio-chart"></canvas>
+            </div>
+
+            <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                <div>
+                    <p class="text-xs text-gray-500">Cash</p>
+                    <p id="cash-balance" class="text-sm font-semibold text-gray-900">$0.00</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-gray-500">Buying Power</p>
+                    <p id="buying-power" class="text-sm font-semibold text-gray-900">$0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stocks Section -->
+        <div class="mt-4">
+            <h2 class="px-4 py-2 text-sm font-semibold text-gray-900 bg-gray-50">Stocks</h2>
+            <div id="stocks-list" class="bg-white">
+                <!-- Stock cards will be injected here -->
+            </div>
+        </div>
+
+        <!-- Options Section -->
+        <div class="mt-4">
+            <h2 class="px-4 py-2 text-sm font-semibold text-gray-900 bg-gray-50">Options</h2>
+            <div class="bg-white p-4 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900">SPY $329 Call</p>
+                        <p class="text-xs text-gray-500">2/21 Exp · 1 Buy</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-semibold text-green-500">+$0.0000</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cryptocurrencies Section -->
+        <div class="mt-4 mb-4">
+            <div class="flex items-center justify-between px-4 py-2 bg-gray-50">
+                <h2 class="text-sm font-semibold text-gray-900">Cryptocurrencies</h2>
+                <button class="text-xs text-primary font-medium">Show All</button>
+            </div>
+            <div id="crypto-list" class="bg-white">
+                <!-- Crypto cards will be injected here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation Component -->
+    <nav
+        class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center h-16 safe-area-bottom z-40">
+        <button class="flex flex-col items-center justify-center w-full h-full text-primary">
+            <i data-lucide="home" class="w-6 h-6"></i>
+            <span class="text-[10px] mt-1">Portfolio</span>
+        </button>
+        <button class="flex flex-col items-center justify-center w-full h-full text-gray-400">
+            <i data-lucide="layout-grid" class="w-6 h-6"></i>
+            <span class="text-[10px] mt-1">Markets</span>
+        </button>
+        <button class="flex flex-col items-center justify-center w-full h-full text-gray-400">
+            <i data-lucide="search" class="w-6 h-6"></i>
+            <span class="text-[10px] mt-1">Search</span>
+        </button>
+        <button class="flex flex-col items-center justify-center w-full h-full text-gray-400">
+            <i data-lucide="bell" class="w-6 h-6"></i>
+            <span class="text-[10px] mt-1">Alerts</span>
+        </button>
+        <button onclick="window.location.href='AccountPage.html'"
+            class="flex flex-col items-center justify-center w-full h-full text-gray-400">
+            <i data-lucide="user" class="w-6 h-6"></i>
+            <span class="text-[10px] mt-1">Account</span>
+        </button>
+    </nav>
+
+    <script>
+        // Shared Mock Data and Utilities
+        const mockData = {
+            portfolio: {
+                totalValue: 1444.57,
+                cash: 18.09,
+                buyingPower: 408.07,
+                todayChange: -9.21,
+                todayChangePercent: -0.81,
+                initialValue: 1300.00
+            },
+            stocks: [
+                { symbol: 'SPY', name: 'SPDR S&P 500 ETF', price: 327.73, change: 1.49, changePercent: 0.45, shares: 100 },
+                { symbol: 'AAPL', name: 'Apple Inc.', price: 312.68, change: -4.32, changePercent: -1.4, shares: 10 },
+                { symbol: 'AMD', name: 'Advanced Micro Devices', price: 48.62, change: -0.53, changePercent: -1.1, shares: 50 },
+                { symbol: 'TSLA', name: 'Tesla, Inc.', price: 182.63, change: 12.45, changePercent: 7.31, shares: 5 }
+            ]
+        };
+
+        const formatters = {
+            currency: (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val),
+            percent: (val) => (val > 0 ? '+' : '') + val.toFixed(2) + '%',
+            color: (val) => (val > 0 ? 'text-green-500' : val < 0 ? 'text-red-500' : 'text-gray-600'),
+            bgColor: (val) => (val > 0 ? 'bg-green-500' : val < 0 ? 'bg-red-500' : 'bg-gray-400')
+        };
+
+        // Initialize state from mockData
+        const { portfolio, stocks } = mockData;
+        const mockCryptos = [
+            { symbol: 'BTC', name: 'Bitcoin', price: 42156.78, change: 1234.56, changePercent: 3.02, chartData: [] },
+            { symbol: 'ETH', name: 'Ethereum', price: 2234.12, change: -45.32, changePercent: -1.99, chartData: [] }
+        ];
+
+        function initPage() {
+            // Update Portfolio Header
+            document.getElementById('total-value').textContent = formatters.currency(portfolio.totalValue);
+            const changeEl = document.getElementById('today-change');
+            const percentEl = document.getElementById('today-change-percent');
+            const isPositive = portfolio.todayChange >= 0;
+
+            changeEl.textContent = (isPositive ? '+' : '') + formatters.currency(portfolio.todayChange);
+            changeEl.className = `text-sm font-medium ${formatters.color(portfolio.todayChange)}`;
+            percentEl.textContent = `(${formatters.percent(portfolio.todayChangePercent)})`;
+            percentEl.className = `text-sm ${formatters.color(portfolio.todayChange)}`;
+
+            document.getElementById('cash-balance').textContent = formatters.currency(portfolio.cash);
+            document.getElementById('buying-power').textContent = formatters.currency(portfolio.buyingPower);
+
+            // Render Stocks
+            const stocksList = document.getElementById('stocks-list');
+            stocks.forEach(stock => {
+                const card = createStockCard(stock);
+                stocksList.appendChild(card);
+            });
+
+            // Render Cryptos
+            const cryptoList = document.getElementById('crypto-list');
+            mockCryptos.forEach(crypto => {
+                const card = createStockCard(crypto);
+                cryptoList.appendChild(card);
+            });
+
+            // Portfolio Chart
+            const ctx = document.getElementById('portfolio-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array(20).fill(''),
+                    datasets: [{
+                        data: [1380, 1390, 1385, 1400, 1410, 1405, 1420, 1435, 1430, 1444, 1438, 1440, 1445, 1442, 1444.57],
+                        borderColor: isPositive ? '#00D4AA' : '#FF5A5F',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { display: false }, y: { display: false } }
+                }
+            });
+
+            lucide.createIcons();
+        }
+
+        function createStockCard(stock) {
+            const isPos = stock.change >= 0;
+            const div = document.createElement('div');
+            div.className = 'bg-white p-4 cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0';
+            div.onclick = () => window.location.href = `StockDetailPage.html?symbol=${stock.symbol}`;
+
+            div.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-gray-900">${stock.symbol}</h3>
+                        <p class="text-xs text-gray-500 truncate">${stock.shares ? stock.shares + ' shares' : stock.name}</p>
+                    </div>
+                    <div class="w-20 h-10 mx-3">
+                        <canvas id="chart-${stock.symbol}"></canvas>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold text-gray-900">${formatters.currency(stock.price)}</p>
+                        <div class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-white ${formatters.bgColor(stock.change)}">
+                            ${formatters.percent(stock.changePercent)}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Render Mini Chart
+            setTimeout(() => {
+                const canvas = document.getElementById(`chart-${stock.symbol}`);
+                if (!canvas) return;
+                const miniCtx = canvas.getContext('2d');
+                new Chart(miniCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array(10).fill(''),
+                        datasets: [{
+                            data: Array.from({ length: 10 }, () => stock.price * (0.95 + Math.random() * 0.1)),
+                            borderColor: isPos ? '#00D4AA' : '#FF5A5F',
+                            borderWidth: 1.5,
+                            pointRadius: 0,
+                            tension: 0.4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { x: { display: false }, y: { display: false } }
+                    }
+                });
+            }, 0);
+
+            return div;
+        }
+
+        initPage();
+    </script>
+</body>
+
+</html>

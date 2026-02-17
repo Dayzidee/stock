@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Order Confirmation - Stock Broker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00D4AA',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+
+<body class="bg-primary flex flex-col min-h-screen">
+
+    <main class="flex-1 flex flex-col items-center justify-center p-6 text-white text-center">
+        <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <i data-lucide="check-circle" class="w-20 h-20 mx-auto mb-6"></i>
+            <h1 id="conf-title" class="text-2xl font-bold mb-2">Order Placed</h1>
+
+            <div
+                class="bg-white bg-opacity-20 rounded-2xl p-6 mt-8 text-left backdrop-blur-sm border border-white border-opacity-10">
+                <div class="flex justify-between mb-4">
+                    <span id="conf-qty-text" class="text-sm opacity-90">0 of 1</span>
+                    <span id="conf-cost" class="text-sm font-semibold">$0.00</span>
+                </div>
+                <div class="text-[10px] uppercase tracking-wider opacity-60 mb-1 font-bold">Contracts Purchased</div>
+                <div class="text-[10px] uppercase tracking-wider opacity-60 mb-4 font-bold">Estimated Cost</div>
+
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm opacity-90">Current Position</span>
+                    <span class="text-sm font-semibold">0 Contracts</span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-sm opacity-90">Commissions</span>
+                    <span class="text-sm font-semibold">$0.00</span>
+                </div>
+            </div>
+
+            <div class="mt-8 space-y-3 w-full max-w-xs mx-auto">
+                <button
+                    class="w-full bg-white bg-opacity-20 text-white font-bold py-3 px-6 rounded-full hover:bg-opacity-30 transition-all">
+                    Replace Order
+                </button>
+                <button onclick="window.location.href='HomePage.html'"
+                    class="w-full bg-white text-primary font-bold py-3 px-6 rounded-full hover:bg-gray-100 transition-all shadow-lg active:scale-95">
+                    Done
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const formatters = {
+            currency: (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val)
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const symbol = urlParams.get('symbol') || 'AMD';
+        const type = urlParams.get('type') || 'call';
+        const strike = urlParams.get('strike') || '49';
+        const qty = urlParams.get('qty') || '1';
+        const cost = urlParams.get('cost') || '390';
+
+        function initPage() {
+            document.getElementById('conf-title').textContent = `${symbol} $${strike} ${type.charAt(0).toUpperCase() + type.slice(1)} 2/21 Order Placed`;
+            document.getElementById('conf-qty-text').textContent = `0 of ${qty}`;
+            document.getElementById('conf-cost').textContent = formatters.currency(parseFloat(cost));
+
+            lucide.createIcons();
+
+            // Auto redirect after 5 seconds
+            setTimeout(() => {
+                // window.location.href = 'HomePage.html';
+            }, 5000);
+        }
+
+        initPage();
+    </script>
+</body>
+
+</html>
